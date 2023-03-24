@@ -17,7 +17,9 @@ def mcmc2d(func, interval, N):
         x = np.random.uniform(interval[0], y)
 
         new_sample = func(x, y)
-        ratio = new_sample / samples[i] * Omega((x, y), mc_points[i]) / Omega(mc_points[i], (x, y))
+        ratio = new_sample / \
+            samples[i] * Omega((x, y), mc_points[i]) / \
+            Omega(mc_points[i], (x, y))
 
         r = np.random.uniform(0, 1)
 
@@ -44,7 +46,8 @@ def mcmc1d(func, interval, N):
         x = np.random.uniform(interval[0], interval[1])
 
         new_sample = func(x)
-        ratio = new_sample / samples[i] * Omega(x, mc_points[i]) / Omega(mc_points[i], x)
+        ratio = new_sample / samples[i] * \
+            Omega(x, mc_points[i]) / Omega(mc_points[i], x)
 
         r = np.random.uniform(0, 1)
 
@@ -80,7 +83,9 @@ def mcmc_time_ordered(func, dim, interval, N, burn_in=1000):
         t_list = generate_t()
 
         new_sample = np.abs(func(*t_list))
-        ratio = new_sample / samples[i] * omega(t_list, mc_points[i]) / omega(mc_points[i], t_list)
+        ratio = new_sample / \
+            samples[i] * omega(t_list, mc_points[i]) / \
+            omega(mc_points[i], t_list)
         ratio = min(ratio, 1)
 
         r = np.random.uniform(0, 1)
@@ -92,27 +97,23 @@ def mcmc_time_ordered(func, dim, interval, N, burn_in=1000):
             samples.append(samples[i])
             mc_points.append(mc_points[i])
     nominator = np.array([np.exp(1j*np.angle(func(*p))) for p in mc_points])
-    samples = np.array(samples) / np.math.factorial(dim) * (t_max - t_min) ** dim
+    samples = np.array(samples) / np.math.factorial(dim) * \
+        (t_max - t_min) ** dim
     return np.mean(nominator) / np.mean(1/samples[burn_in:]), nominator, samples
-
 
 
 if __name__ == "__main__":
     def f9(x, y, z, a, b, c, d, e, f):
         return np.exp(-(x + y + z + a + b + c + d + e + f) ** 2)
 
-
     def f4(x, y, z, a):
         return np.exp(-(x + y + z + a) ** 2)
-
 
     def f5(x, y, z, a, b):
         return np.exp(-(x + y + z + a + b) ** 2)
 
-
     def f2(x, y):
         return np.exp(-(x) ** 2)
-
 
     N = 500000
     _, a = mcmc_time_ordered(f5, 5, [0, 1], N=N)
@@ -130,13 +131,4 @@ if __name__ == "__main__":
     plt.plot(mean_list)
     plt.plot([0.000199348] * len(mean_list))
 
-
     plt.savefig('mcmc_integral.png', dpi=300)
-
-
-
-
-
-
-
-
