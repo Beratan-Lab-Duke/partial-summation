@@ -35,8 +35,8 @@ def fgr_decay_profile(e, kbT, _w, _v_sq, t):
 def fgr_rate_by_order(c, e, kbT, _w, _v_sq, perturbation, order: int):
     import math
     def taylor_exp(x, n):
-        exp_approx = 1
-        for i in range(1, n + 1):
+        exp_approx = 0
+        for i in range(n, n + 1):
             num = x ** (i)
             denom = math.factorial(i)
             exp_approx += num / denom

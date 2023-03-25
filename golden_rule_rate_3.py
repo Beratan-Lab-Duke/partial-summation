@@ -4,9 +4,9 @@ from legendre_discretization import get_vn_squared, get_approx_func
 from golden_rule_rate import fgr_rate, fgr_rate_by_order
 import itertools as it
 from mcmc_integrator import mcmc_time_ordered
-
+from libpst import get_graph_from_h, get_order2_paths_edges, remove_reverse_paths, gen_rate_order
 """
-Calculate fermi's golden rule rate for 2-state (2 acceptors) electron transfer reactions, given spectral densities.
+Calculate fermi's golden rule rate for 3-state (2 acceptors) electron transfer reactions, given spectral densities.
 """
 
 
@@ -344,6 +344,8 @@ def fgr_rate3_correction_order_vegas(c_list, e_list, kbT, w, s_list, t_max, orde
     return -2 * c[0] * c[2] ** order * c[1] * integral
 
 
+
+
 if __name__ == "__main__":
     """
     Example calculation. Reproduce Figure 2 in dx.doi.org/10.1021/jp400462f | J. Phys. Chem. A 2013, 117, 6196−6204
@@ -365,11 +367,27 @@ if __name__ == "__main__":
     print("Discrete Reorganization E", np.sum(v_sq / w / np.pi))
 
     aa_coupling = 5e-3
-    e = np.linspace(0.015, 0.03, 10)
+    e = np.linspace(0.015, 0.03, 5)
+    def ha(e_list, C_DA, aa_coupling):
+        h = np.diag(e_list)
+        h[0,1] = C_DA
+        h[1,0] = C_DA
+        h[0,2] = C_DA
+        h[2,0] = C_DA
+        h[1,2] = aa_coupling
+        h[2,1] = aa_coupling
+
+        h[1,3] = aa_coupling
+        h[3,1] = aa_coupling
+        h[2,3] = aa_coupling
+        h[3,2] = aa_coupling
+        h[0,3] = C_DA
+        h[3,0] = C_DA
+        return h
     print(len(e))
 
-    # rate_fgr_perturbative_1 = np.vectorize(lambda ei: fgr_rate_by_order(C_DA, ei, kbT, w, v_sq, aa_coupling, 1)
-    #                                        )(e)
+    rate_fgr_perturbative_1 = 3/2 * np.vectorize(lambda ei: fgr_rate_by_order(C_DA, ei, kbT, w, v_sq, 2*aa_coupling, 2)
+                                           )(e)
     #
     # rate_fgr_perturbative_0 = np.vectorize(lambda ei: fgr_rate_by_order(C_DA, ei, kbT, w, v_sq, aa_coupling, 0)
     #                                        )(e)
@@ -388,29 +406,30 @@ if __name__ == "__main__":
     from time import time
 
     start1 = time()
-    fgr_rate3_correction_1 = np.vectorize(
-        lambda ei: fgr_rate3_correction_order_quad([C_DA, C_DA, aa_coupling], [0, -ei, -ei], kbT, w, [-v * 0, v, v],
-                                                   1000, 0)
-    )(e)
+    # fgr_rate3_correction_1 = np.vectorize(
+    #     lambda ei: fgr_rate3_correction_order_quad([C_DA, C_DA, aa_coupling], [0, -ei, -ei], kbT, w, [-v * 0, v, v],
+    #                                                1000, 1)
+    # )(e)
     end1 = time()
     print("finished")
-    # fgr_rate3_correction_1_mcmc = np.vectorize(
-    #         lambda ei: fgr_rate3_correction_by_order_mcmc([C_DA, C_DA, aa_coupling], [0, -ei, -ei], kbT, w, [-v * 0, v, v],
-    #                                                  400, 2, 100000, burn_in=1000)
-    #     )(e)
+
+    # fgr_rate3_correction_1_vegas = np.vectorize(
+    #     lambda ei: fgr_rate3_correction_order_vegas([C_DA, C_DA, aa_coupling], [0, -ei, -ei], kbT, w, [-v * 0, v, v],
+    #                                                 1000, 1, nitn=10, neval=1000)
+    # )(e)
 
     fgr_rate3_correction_1_vegas = np.vectorize(
-        lambda ei: fgr_rate3_correction_order_vegas([C_DA, C_DA, aa_coupling], [0, -ei, -ei], kbT, w, [-v * 0, v, v],
-                                                    1000, 0, nitn=10, neval=1000)
+        lambda ei: gen_rate_order(ha([0,-ei,-ei, -ei], C_DA, aa_coupling), kbT, w, [-v * 0, v, 1*v, 1*v], 1000, 2, nitn=5, neval=1000)
     )(e)
 
     end2 = time()
-    print(f"Quadrature {start1 - end1}; MCMC {end2 - end1}")
+    # print(f"Quadrature {start1 - end1}; MCMC {end2 - end1}")
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.plot(e, fgr_rate3_correction_1, 'd-', label=f'Quadrature {1}')
+    ax.plot(e, rate_fgr_perturbative_1, 'o-', label=f'Perturbative {1}')
+    # ax.plot(e, fgr_rate3_correction_1, 'd-', label=f'Quadrature {1}')
     ax.plot(e, fgr_rate3_correction_1_vegas, 'd-', label=f'vegas {1}')
     # ax.plot(e, fgr_rate3_correction_1_mcmc, 'd-', label=f'MCMC {1}')
 
