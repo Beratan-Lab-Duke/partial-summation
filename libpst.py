@@ -177,7 +177,7 @@ def gen_rate_edge(h: np.ndarray, edges, kbT, w, s, t_max, nitn=10, neval=1000):
 
 if __name__ == "__main__":
     order = 5
-    h = np.array([[1.5, 2, 1], [1.1, 0.1, 1], [1, 1, 0.9]], )
+    h = np.array([[1.5, 2, 1], [1.1, 0.1, 1], [1, 1, 0.9]], dtype=float)
     g = get_graph_from_h(h)
     p = get_order2_paths_edges(g, 0, 0, order)
     p = remove_reverse_paths(p)
