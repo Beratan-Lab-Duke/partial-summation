@@ -63,7 +63,7 @@ def remove_reverse_paths(paths_and_edges):
 
     return filtered_paths_and_edges
 
-def gen_rate_order(h: np.array, kbT, w, s, t_max, order, nitn=10, neval=1000):
+def gen_rate_order(h: np.ndarray, kbT, w, s, t_max, order, nitn=10, neval=1000):
     g = get_graph_from_h(h)
     paths_and_edges = list(get_paths_edges(g, 0, 0, order+2))
     print("Number of paths: ", len(paths_and_edges))
@@ -74,7 +74,7 @@ def gen_rate_order(h: np.array, kbT, w, s, t_max, order, nitn=10, neval=1000):
         print("path: ", path_i, "rate correction: ", d)
     return k
 
-def gen_rate_edge(h: np.array, edges, kbT, w, s, t_max, nitn=10, neval=1000):
+def gen_rate_edge(h: np.ndarray, edges, kbT, w, s, t_max, nitn=10, neval=1000):
     e = np.diagonal(h)
     s = np.array(s)
     w = np.array(w)
@@ -177,7 +177,8 @@ def gen_rate_edge(h: np.array, edges, kbT, w, s, t_max, nitn=10, neval=1000):
 
 if __name__ == "__main__":
     order = 5
-    g = get_graph_from_h(np.array([[1.5, 2, 1], [1.1, 0.1, 1], [1, 1, 0.9]]))
+    h = np.array([[1.5, 2, 1], [1.1, 0.1, 1], [1, 1, 0.9]], )
+    g = get_graph_from_h(h)
     p = get_order2_paths_edges(g, 0, 0, order)
     p = remove_reverse_paths(p)
     for i, pi in enumerate(p):
