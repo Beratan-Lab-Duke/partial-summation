@@ -1,1 +1,0 @@
-alias ll="ls --color=auto --group-directories-first -l -h"
