@@ -89,7 +89,7 @@ if __name__ == "__main__":
     rate_fgr = np.vectorize(lambda ei: fgr_rate(C_DA, ei - coup, kbT, w, v_sq)
                             )(e)
 
-    order = 5
+    order = 25
     rate_fgr_perturbative = np.vectorize(lambda ei: fgr_rate_by_order(C_DA, ei, kbT, w, v_sq, coup, order)
                                          )(e)
     rate_marcus = np.vectorize(lambda ei: marcus_rate(C_DA, ei - coup, kbT, reorg_e))(e)
