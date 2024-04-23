@@ -1,6 +1,5 @@
 import numpy as np
 from scipy import integrate
-from legendre_discretization import get_vn_squared, get_approx_func
 
 def noneq_fgr(c0, c1, c2, w, kbT, eD, eA, vDA, t1=1000):
     w = np.array(w)
@@ -36,6 +35,7 @@ if __name__ == "__main__":
     """
 
     import matplotlib.pyplot as plt
+    from legendre_discretization import get_vn_squared, get_approx_func
 
     # Lorentzian spectral density parameters. Atomic units.
     reorg_e = 2.39e-2
