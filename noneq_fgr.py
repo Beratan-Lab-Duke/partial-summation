@@ -14,7 +14,7 @@ def noneq_fgr(c0, c1, c2, w, kbT, eD, eA, vDA, t1=1000):
     def exponent1(τ): return np.sum(
         factor1 * (coth * (1 - np.cos(w * τ)) + 1j * np.sin(τ * w)))
 
-    factor2 = 2j * (c1 - c2) * (c0 + c1) / w ** 2
+    factor2 = 2j * (c1 - c2) * (c1 -c0) / w ** 2
     def exponent2(τ): return np.sum(
         factor2 * (np.sin(w * t1) + np.sin(w * (τ - t1))))
     
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # Lorentzian spectral density parameters. Atomic units.
     reorg_e = 2.39e-2
     Omega = 3.5e-4
-    kbT = 9.5e-4 * 0.2
+    kbT = 9.5e-4 * 0.5
     eta = 1.2e-3
     freq_domain = [0, 5e-3]
     C_DA = 5e-5
@@ -54,17 +54,20 @@ if __name__ == "__main__":
     plt.savefig('spectral_density.png')
     plt.clf()
 
-    e = np.linspace(reorg_e - 1 * reorg_e, reorg_e + 1 * reorg_e, 100)
+    e = np.linspace(reorg_e - 1 * reorg_e, reorg_e + 1 * reorg_e, 60)
 
-    c0 = -0. * np.sqrt(v_sq / np.pi)
+    c0 = 0.1 * np.sqrt(v_sq / np.pi)
     c1 = 0 * c0
     c2 = np.sqrt(v_sq / np.pi)
-    rate_fgr = np.vectorize(lambda ei: noneq_fgr(c0, c1, c2, w, kbT, eD=ei, eA=0, vDA=C_DA, t1=10000)
+    rate_fgr_plus = np.vectorize(lambda ei: noneq_fgr(c0, c1, c2, w, kbT, eD=ei, eA=0, vDA=C_DA, t1=10000)
+                            )(e)
+    rate_fgr_minus = np.vectorize(lambda ei: noneq_fgr(-c0, c1, c2, w, kbT, eD=ei, eA=0, vDA=C_DA, t1=10000)
                             )(e)
     rate_marcus = np.vectorize(lambda ei: marcus_rate(C_DA, ei, kbT, reorg_e))(e)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(e, rate_fgr, 'o-', label='FGR rate')
+    ax.plot(e, rate_fgr_plus, 'o-', label=r'FGR rate, +$\rho_0$')
+    ax.plot(e, rate_fgr_minus, 's-', label=r'FGR rate, -$\rho_0$')
     ax.plot(e, rate_marcus, 'x', label='Marcus rate')
     ax.set_yscale('log')
     ax.legend()
